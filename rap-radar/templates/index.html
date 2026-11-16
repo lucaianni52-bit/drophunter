@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DropHunter — Ticket Radar & Live Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #07080c;
+            --card-bg: rgba(22, 26, 38, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --neon-green: #00f59b;
+            --neon-purple: #9d4edd;
+            --neon-blue: #3a86ff;
+            --warning: #ffb703;
+            --danger: #ff4d6d;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 10%, rgba(157, 78, 221, 0.18), transparent 35%),
+                radial-gradient(circle at 85% 20%, rgba(0, 245, 155, 0.12), transparent 35%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 25px 15px;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 960px; margin: 0 auto; }
+
+        /* HEADER & LOGO */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 22px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--card-border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 0 20px rgba(0, 245, 155, 0.35);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .bot-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 245, 155, 0.08);
+            border: 1px solid rgba(0, 245, 155, 0.25);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            color: var(--neon-green);
+            font-weight: 600;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-green);
+            animation: pulse 1.6s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.5; }
+            100% { transform: scale(0.95); opacity: 1; }
+        }
+
+        /* NAV TABS */
+        nav {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: rgba(15, 18, 26, 0.8);
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            width: fit-content;
+        }
+
+        .nav-tab {
+            text-decoration: none;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            transition: all 0.25s ease;
+        }
+
+        .nav-tab:hover { color: #fff; }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, var(--neon-green), #00c47d);
+            color: #051b11;
+            box-shadow: 0 4px 15px rgba(0, 245, 155, 0.25);
+        }
+
+        .nav-tab.active-eventi {
+            background: linear-gradient(135deg, var(--neon-purple), #7b2cbf);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.35);
+        }
+
+        /* HERO BANNER EVENTI TOP */
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(157, 78, 221, 0.2), rgba(58, 134, 255, 0.12));
+            border: 1px solid rgba(157, 78, 221, 0.35);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-banner h2 { margin: 0 0 6px 0; font-size: 1.3rem; }
+        .hero-banner p { margin: 0; color: #cbd5e1; font-size: 0.95rem; }
+
+        /* SEARCH BAR */
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(12px);
+        }
+
+        input[type="text"] {
+            flex: 1;
+            min-width: 220px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 12, 18, 0.8);
+            color: white;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus { border-color: var(--neon-green); }
+
+        .filter-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            padding: 0 8px;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            accent-color: var(--neon-green);
+            width: 16px;
+            height: 16px;
+        }
+
+        button {
+            padding: 12px 26px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, var(--neon-green), #00c47d);
+            color: #041c11;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 245, 155, 0.3);
+        }
+
+        /* CONCERT CARDS */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 22px;
+            margin-bottom: 18px;
+            backdrop-filter: blur(12px);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tag-top {
+            display: inline-block;
+            background: rgba(157, 78, 221, 0.2);
+            border: 1px solid rgba(157, 78, 221, 0.4);
+            color: #e0aaff;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .artist {
+            font-size: 1.45rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        .tour-name {
+            font-weight: 400;
+            color: #cbd5e1;
+            font-size: 1.1rem;
+        }
+
+        .details {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            color: var(--text-muted);
+            margin: 8px 0 16px 0;
+            font-size: 0.92rem;
+        }
+
+        .badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .disp {
+            background: rgba(0, 245, 155, 0.12);
+            color: var(--neon-green);
+            border: 1px solid rgba(0, 245, 155, 0.3);
+        }
+
+        .pochi {
+            background: rgba(255, 183, 3, 0.12);
+            color: var(--warning);
+            border: 1px solid rgba(255, 183, 3, 0.3);
+        }
+
+        .soldout {
+            background: rgba(255, 77, 109, 0.12);
+            color: var(--danger);
+            border: 1px solid rgba(255, 77, 109, 0.3);
+        }
+
+        /* TICKET ROWS */
+        .ticket-list {
+            border-top: 1px solid var(--card-border);
+            padding-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ticket-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 12, 18, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 18px;
+            border-radius: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .platform-name { font-weight: 700; color: #fff; }
+        .sector-name { color: var(--text-muted); font-size: 0.9rem; }
+
+        .price-action {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .price {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--neon-green);
+        }
+
+        .buy-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            text-decoration: none;
+            padding: 9px 18px;
+            border-radius: 9px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .buy-btn:hover {
+            background: var(--neon-green);
+            color: #051b11;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 245, 155, 0.35);
+        }
+
+        .empty-msg {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--card-border);
+            padding-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="brand">
+            <div class="logo-icon">🎯</div>
+            <h1>DropHunter</h1>
+        </div>
+        <div class="bot-pill">
+            <span class="pulse-dot"></span>
+            Bot Live • Scansione {{ ultimo_controllo }}
+        </div>
+    </header>
+
+    <nav>
+        <a href="/" class="nav-tab {% if pagina == 'home' %}active{% endif %}">🎤 Monitor Rapper</a>
+        <a href="/eventi" class="nav-tab {% if pagina == 'eventi' %}active-eventi{% endif %}">🔥 Eventi Top & Palazzetti</a>
+    </nav>
+
+    {% if pagina == 'eventi' %}
+    <div class="hero-banner">
+        <h2>Arena & Palazzetti — Alta Richiesta</h2>
+        <p>Monitoraggio prioritario sui live più grandi in Italia (ANNA, Sfera Ebbasta, Geolier, Lazza, Tedua).</p>
+    </div>
+    {% endif %}
+
+    <form class="search-bar" method="GET">
+        <input type="text" name="q" placeholder="Cerca artista, tour o città (es. ANNA, Kid Yugi, Milano)..." value="{{ query }}">
+        <label class="filter-label">
+            <input type="checkbox" name="disponibili" {% if solo_disponibili %}checked{% endif %}>
+            Solo disponibili
+        </label>
+        <button type="submit">Filtra</button>
+    </form>
+
+    {% for c in concerti %}
+    <div class="card">
+        <div class="card-header">
+            <div>
+                {% if c.tag %}
+                    <div class="tag-top">{{ c.tag }}</div>
+                {% endif %}
+                <h2 class="artist">{{ c.artista }} <span class="tour-name">— {{ c.tour or c.evento }}</span></h2>
+                <div class="details">
+                    <span>📍 {{ c.citta }} • {{ c.locale }}</span>
+                    <span>📅 {{ c.data }}</span>
+                </div>
+            </div>
+            {% if "Disponibile" in c.stato %}
+                <span class="badge disp">{{ c.stato }}</span>
+            {% elif "Pochi" in c.stato %}
+                <span class="badge pochi">{{ c.stato }}</span>
+            {% else %}
+                <span class="badge soldout">{{ c.stato }}</span>
+            {% endif %}
+        </div>
+
+        {% if c.biglietti %}
+        <div class="ticket-list">
+            {% for b in c.biglietti %}
+            <div class="ticket-row">
+                <div>
+                    <span class="platform-name">{{ b.piattaforma }}</span>
+                    <span class="sector-name"> • {{ b.settore }}</span>
+                </div>
+                <div class="price-action">
+                    <span class="price">{{ "%.2f"|format(b.prezzo) }} €</span>
+                    <a href="{{ b.url }}" target="_blank" class="buy-btn">Acquista ora →</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-msg">
+            <span>⏳</span> Nessun biglietto libero al momento. Il bot sta controllando eventuali riemissioni...
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+</body>
+</html>
